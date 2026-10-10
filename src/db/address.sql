@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS address (
+    id UUID PRIMARY KEY,
+    country VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    street VARCHAR(255) NOT NULL
+);
+
+

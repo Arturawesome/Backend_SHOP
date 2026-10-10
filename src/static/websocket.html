@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Client</title>
+</head>
+<body>
+
+<h1>WebSocket Client</h1>
+<p>Product updates:</p>
+
+<div id="updates"></div>
+
+<script>
+    const protocol =
+        window.location.protocol === "https:"
+            ? "wss"
+            : "ws";
+
+    const ws = new WebSocket(
+        `${protocol}://${window.location.host}/api/v1/websocket`
+    );
+
+    const updates = document.getElementById("updates");
+
+    ws.onopen = () => {
+        console.log("WebSocket connected");
+    };
+
+    ws.onmessage = (event) => {
+        const product = JSON.parse(event.data);
+
+        console.log("Product updated:", product);
+
+        const item = document.createElement("p");
+
+        item.textContent =
+            `ID: ${product.id} | ` +
+            `Price: ${product.price} | ` +
+            `Stock: ${product.available_stock} | ` +
+            `Time: ${product.timestamp}`;
+
+        updates.prepend(item);
+    };
+
+    ws.onclose = () => {
+        console.log("WebSocket disconnected");
+    };
+
+    ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+</script>
+
+</body>
+</html>

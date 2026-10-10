@@ -1,0 +1,937 @@
+definitions:
+  dto.AddressRequest:
+    properties:
+      city:
+        example: Moscow
+        type: string
+      country:
+        example: Russia
+        type: string
+      street:
+        example: Baumanskaya street
+        type: string
+    type: object
+  dto.ClientRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.AddressRequest'
+      birthday:
+        example: "1998-05-12T00:00:00Z"
+        type: string
+      gender:
+        example: male
+        type: string
+      name:
+        example: Artur
+        type: string
+      surname:
+        example: Nasyrov
+        type: string
+    type: object
+  dto.ClientResponse:
+    properties:
+      birthday:
+        example: "1998-05-12T00:00:00Z"
+        type: string
+      gender:
+        example: male
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      name:
+        example: Artur
+        type: string
+      registration_date:
+        example: "1998-05-12T00:00:00Z"
+        type: string
+      surname:
+        example: Nasyrov
+        type: string
+    type: object
+  dto.ImageRequest:
+    type: object
+  dto.ProductRequest:
+    properties:
+      available_stock:
+        example: 15
+        type: integer
+      category:
+        example: washing_machine
+        type: string
+      name:
+        example: Washing machine
+        type: string
+      price:
+        example: 59990
+        type: integer
+      supplier_id:
+        type: string
+    type: object
+  dto.ProductResponse:
+    properties:
+      available_stock:
+        description: число закупленных экземпляров товара
+        example: 15
+        type: integer
+      category:
+        example: washing_machine
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      image_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      last_update_date:
+        description: дата последней закупки
+        example: "1998-05-12T00:00:00Z"
+        type: string
+      name:
+        example: Washing machine
+        type: string
+      price:
+        example: 59990
+        type: integer
+      supplier_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  dto.SupplierRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.AddressRequest'
+      name:
+        example: Bosch
+        type: string
+      phone_number:
+        example: "+74951234567"
+        type: string
+    type: object
+  dto.SupplierResponse:
+    properties:
+      address_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      name:
+        example: Bosch
+        type: string
+      phone_number:
+        example: "+74951234567"
+        type: string
+    type: object
+  main.authResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+  main.changePasswordRequest:
+    properties:
+      new_password:
+        type: string
+    type: object
+  main.changePasswordResponse:
+    properties:
+      is_changed:
+        type: boolean
+    type: object
+  main.errorResponse:
+    properties:
+      error:
+        example: incorrect input
+        type: string
+    type: object
+  main.loginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  main.registerRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      surname:
+        type: string
+    type: object
+  main.resetPasswordRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  main.resetPasswordResponse:
+    properties:
+      is_restored:
+        type: boolean
+    type: object
+info:
+  contact: {}
+  description: REST API for household appliance shop
+  title: Appliance Shop API
+  version: "1.0"
+paths:
+  /auth:
+    post:
+      consumes:
+      - Application/json
+      description: Authenticates user by email and password and returns a signed JWT
+        access token
+      parameters:
+      - description: Login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.loginRequest'
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.authResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Authenticate user
+      tags:
+      - auth
+  /auth/password:
+    patch:
+      consumes:
+      - Application/json
+      description: Changes the password of the authenticated user
+      parameters:
+      - description: New password
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.changePasswordRequest'
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.changePasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - auth
+  /clients:
+    get:
+      description: Get all clients with optional pagination
+      parameters:
+      - description: Maximum number of clients
+        in: query
+        name: limit
+        type: integer
+      - description: Number of clients to skip
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ClientResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get clients
+      tags:
+      - clients
+    post:
+      consumes:
+      - Application/json
+      description: Create a new client
+      parameters:
+      - description: Client data
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClientRequest'
+      produces:
+      - Application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add client
+      tags:
+      - clients
+  /clients/{id}:
+    delete:
+      description: Remove client by ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove client
+      tags:
+      - clients
+  /clients/{id}/address:
+    patch:
+      consumes:
+      - Application/json
+      description: Update address of an existing client
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New address
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddressRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change client address
+      tags:
+      - clients
+  /clients/search:
+    get:
+      description: Search clients by name and surname
+      parameters:
+      - description: Client name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Client surname
+        in: query
+        name: surname
+        required: true
+        type: string
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ClientResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search clients
+      tags:
+      - clients
+  /images/{id}:
+    delete:
+      description: Delete an image by image ID
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove image
+      tags:
+      - images
+    put:
+      consumes:
+      - Application/json
+      description: Replace an existing image by image ID
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New image data
+        in: body
+        name: image
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ImageRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change image
+      tags:
+      - images
+  /products:
+    get:
+      description: Get all products with available stock
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get available products
+      tags:
+      - products
+    post:
+      consumes:
+      - Application/json
+      description: Create a new product
+      parameters:
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProductRequest'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Delete a product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove product
+      tags:
+      - products
+    get:
+      description: Get a product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get product
+      tags:
+      - products
+  /products/{id}/image:
+    get:
+      description: Get the image associated with a product by product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - Application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get product image
+      tags:
+      - images
+    post:
+      consumes:
+      - Application/json
+      description: Add an image to a product by product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Image data
+        in: body
+        name: image
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ImageRequest'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add product image
+      tags:
+      - images
+  /products/{id}/stock:
+    patch:
+      description: Decrease the available stock of a product by the specified amount
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Amount to decrease
+        in: query
+        name: num
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Decrease product stock
+      tags:
+      - products
+  /register:
+    post:
+      consumes:
+      - Application/json
+      description: Creates a new user and returns a signed JWT access token
+      parameters:
+      - description: Registration data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.registerRequest'
+      produces:
+      - Application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.authResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Register user
+      tags:
+      - auth
+  /reset:
+    post:
+      consumes:
+      - Application/json
+      description: Generates a new password for the user. The authorization service
+        prints the generated password to its console as an email stub.
+      parameters:
+      - description: User email
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.resetPasswordRequest'
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.resetPasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Reset user password
+      tags:
+      - auth
+  /suppliers:
+    get:
+      description: Get list of all suppliers
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.SupplierResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get suppliers
+      tags:
+      - suppliers
+    post:
+      consumes:
+      - Application/json
+      description: Create a new supplier
+      parameters:
+      - description: Supplier data
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SupplierRequest'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add supplier
+      tags:
+      - suppliers
+  /suppliers/{id}:
+    delete:
+      description: Delete a supplier by ID
+      parameters:
+      - description: Supplier ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove supplier
+      tags:
+      - suppliers
+    get:
+      description: Get a supplier by ID
+      parameters:
+      - description: Supplier ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - Application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SupplierResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get supplier
+      tags:
+      - suppliers
+  /suppliers/{id}/address:
+    patch:
+      consumes:
+      - Application/json
+      description: Update address of an existing supplier
+      parameters:
+      - description: Supplier ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New address
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddressRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change supplier address
+      tags:
+      - suppliers
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter JWT token in format: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

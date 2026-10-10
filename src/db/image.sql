@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS image (
+    id UUID PRIMARY KEY,
+	image BYTEA  NOT NULL
+);

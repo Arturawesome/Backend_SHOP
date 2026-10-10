@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Client</title>
+</head>
+<body>
+
+<h1>SSE Client</h1>
+<p>Open browser console to see task updates.</p>
+
+<script>
+    const events = new EventSource("/api/v1/sse");
+
+    events.onopen = () => {
+        console.log("SSE connected");
+    };
+
+    events.onmessage = (event) => {
+        const product = JSON.parse(event.data);
+        console.log("Product updated:", product);
+    };
+
+    events.onerror = (error) => {
+        console.error("SSE error:", error);
+    };
+</script>
+
+</body>
+</html>

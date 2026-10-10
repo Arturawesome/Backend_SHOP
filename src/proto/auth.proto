@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "BE2_API_Shop/gen/auth";
+
+service AuthService {
+    rpc Registration(RegistrationRequest) returns (RegistrationResponse);
+    rpc Login (LoginRequest) returns(LoginResponse);
+    rpc ChangePassword(ChangePasswordRequest) returns(ChangePasswordResponse);
+    rpc RestorePassword(RestorePasswordRequest) returns (RestorePasswordResponse);
+    rpc ValidateToken(ValidateTokenRequest) returns(ValidateTokenResponse);
+   
+}
+message ValidateTokenRequest {
+  string token = 1;
+
+}
+message ValidateTokenResponse {
+  bool isValid = 1;
+  string userId = 2;
+}
+
+message RestorePasswordRequest {
+ string email = 1;
+}
+message RestorePasswordResponse {
+ bool isRestored = 1;
+}
+
+message ChangePasswordRequest {
+  string accessToken = 1;
+  string newPassword = 2;
+}
+
+message ChangePasswordResponse {
+  bool isChanged = 1;
+}
+
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+message LoginResponse {
+    string accessToken = 1;
+}
+message RegistrationRequest {
+  string email  = 1;
+  string name  = 2;
+  string surname = 3;
+  string phone = 4;
+  string password = 5;
+}
+
+message RegistrationResponse {
+  string accessToken = 1;
+}
+

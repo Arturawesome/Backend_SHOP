@@ -1,0 +1,21 @@
+shop:
+  http_addr: ":4000"
+  database:
+    url: "postgres://shop:shop@localhost:5432/shop?sslmode=disable"
+
+auth:
+  grpc_addr:
+    listen_addr: ":50051"
+    client_addr: "localhost:50051"
+  database:
+    url: "postgres://users:users@localhost:5431/users?sslmode=disable"
+  jwt_secret: "secret"
+
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  queue: "product_update_event"
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
